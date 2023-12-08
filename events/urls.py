@@ -36,6 +36,8 @@ from .views import (
 
     EventSlotsListView,
     SingleEventSlotDetailView,
+
+    FeedbackCreateView
     
 )
 from . import views
@@ -107,6 +109,8 @@ urlpatterns = [
         name="single_event_detail",
     ),
     path("slots/<int:id>/", EventSlotsListView.as_view(), name="event_slots_list"),
+
+    path('feedback/', FeedbackCreateView.as_view(), name='feedback-create'),
    
  ]
 

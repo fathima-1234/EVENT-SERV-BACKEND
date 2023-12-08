@@ -82,3 +82,9 @@ class EventSlot(models.Model):
 
     def __str__(self):
         return f"{self.event.name} - {self.date} "
+
+
+class Feedback(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE,null=True)
+    event = models.ForeignKey(Event, on_delete=models.CASCADE,null = True)
+    comment = models.TextField()

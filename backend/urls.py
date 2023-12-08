@@ -11,6 +11,9 @@ urlpatterns = [
     path("events/", include("events.urls")),
     path("user/", include("user.urls")),
     path("api/stripe/", include("payment.urls")),
-    path("api/", include("chat.urls")),
+    path("chat/", include("chatapp.urls")),
+   
+   
+
     
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

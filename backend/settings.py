@@ -38,7 +38,8 @@ ALLOWED_HOSTS = []
 
 INSTALLED_APPS = [
     "daphne",
-    'channels',
+    
+    "channels",
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -58,14 +59,13 @@ INSTALLED_APPS = [
     "send_mail_app",
     'user',
     'payment',
-    'chat',
+    "chatapp",
+   
+    
     
 ]
-# CHANNEL_LAYERS = {
-#     'default': {
-#         'BACKEND': 'channels.layers.InMemoryChannelLayer',
-#     },
-# }
+
+
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": (
         "rest_framework_simplejwt.authentication.JWTAuthentication",
@@ -124,17 +124,17 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    # 'channels.middleware.WebSocketMiddleware',
+    
 ]
-# Channels
+ASGI_APPLICATION = "backend.asgi.application"
+
 CHANNEL_LAYERS = {
     "default": {
-        "BACKEND": "channels_redis.core.RedisChannelLayer",
-        "CONFIG": {
-            "hosts": [("127.0.0.1", 6379)],
-        },
+        "BACKEND": "channels.layers.InMemoryChannelLayer",
     },
 }
+
+
 
 ROOT_URLCONF = 'backend.urls'
 
@@ -155,7 +155,8 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'backend.wsgi.application'
-ASGI_APPLICATION = 'backend.routing.application'
+
+
 
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases

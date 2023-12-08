@@ -35,6 +35,11 @@ from send_mail_app.tasks import send_mail_func
 from .models import EventSlot
 from .serializers import EventSlotSerializer, PostEventSlotSerializers
 
+from .models import Feedback
+from .serializers import FeedbackSerializer
+
+from rest_framework import generics, permissions
+
 
 # Create your views here.
 def test(request):
@@ -467,3 +472,25 @@ class EventSlotsListView(ListAPIView):
     def get_queryset(self):
         event_id = self.kwargs.get("id")
         return EventSlot.objects.filter(event_id=event_id)
+
+
+# class FeedbackCreateView(generics.CreateAPIView):
+#     queryset = Feedback.objects.all()
+#     serializer_class = FeedbackSerializer
+#     permission_classes = [permissions.IsAuthenticated]
+
+#     def perform_create(self, serializer):
+#         # Set the user based on the current logged-in user
+#         serializer.save(user=self.request.user)
+
+# class UserFeedbackListView(APIView):
+#     permission_classes = [permissions.IsAuthenticated]
+
+#     def get(self, request):
+#         # Get feedback for the current user
+#         feedback = Feedback.objects.filter(user=request.user)
+#         serializer = FeedbackSerializer(feedback, many=True)
+#         return Response(serializer.data, status=status.HTTP_200_OK)
+class FeedbackCreateView(generics.CreateAPIView):
+    queryset = Feedback.objects.all()
+    serializer_class = FeedbackSerializer
