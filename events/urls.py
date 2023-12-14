@@ -10,7 +10,7 @@ from .views import (
     EventDeleteView,
     EventUpdateView,
     CreateEvent,
-
+    CreateEventMenu,
     CreateEventCategory,
     CategoryDeleteView,
     CategoryUpdateView,
@@ -21,10 +21,10 @@ from .views import (
     MenuUpdateView,
 
     ApproveEvent,
-    # RejectEvent,
+    
     BlockEvent,
     MyEvents,
-    # SingleEventLocationDetailView,
+    
     CategoryView,
     EventListView,
     LocationListView,
@@ -37,7 +37,7 @@ from .views import (
     EventSlotsListView,
     SingleEventSlotDetailView,
 
-    FeedbackCreateView
+    
     
 )
 from . import views
@@ -52,6 +52,9 @@ urlpatterns = [
     path("create-event/", CreateEvent.as_view(), name="event-create"),
     path(
         "create-event-category/", CreateEventCategory.as_view(), name="event-category-create"
+    ),
+    path(
+        "create-event-menu/", CreateEventMenu.as_view(), name="event-menu-create"
     ),
     path(
         "delete-event-category/<int:cat_id>/",
@@ -109,17 +112,7 @@ urlpatterns = [
         name="single_event_detail",
     ),
     path("slots/<int:id>/", EventSlotsListView.as_view(), name="event_slots_list"),
-
-    path('feedback/', FeedbackCreateView.as_view(), name='feedback-create'),
+   
    
  ]
 
-# const handleMenuChange = (menuId) => {
-#   const isSelected = selectedMenus.includes(menuId);
-#   if (isSelected) {
-#     setSelectedMenus(selectedMenus.filter(id => id !== menuId));
-#   } else {
-#     setSelectedMenus([...selectedMenus, menuId]);
-#   }
-# };
-#  selectedMenus={selectedMenus}

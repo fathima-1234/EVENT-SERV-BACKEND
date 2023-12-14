@@ -1,6 +1,7 @@
 from django.urls import path, include
 from . import views
 from . import consumers
+from .views import ChatMessagesView
 
 websocket_urlpatterns = [
     path("ws/chat/<str:room_name>/", consumers.ChatConsumer.as_asgi()),
@@ -23,4 +24,6 @@ urlpatterns = [
         name="message-detail",
     ),
     path("roomCreate/", views.RoomCreateAPIView.as_view(), name="room-create"),
+    path('rooms/<int:room_id>/chatmessages/', ChatMessagesView.as_view(), name='chat_messages'),
+
 ]

@@ -144,26 +144,6 @@ class EventUpdateView(APIView):
             return Response({"msg": "Event updated successfully"})
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-# class EventUpdateView(APIView):
-#     def get_object(self, event_id):
-#         try:
-#             return Event.objects.get(id=event_id)
-#         except Event.DoesNotExist:
-#             return None
-
-#     def put(self, request, event_id):
-#         event = self.get_object(event_id)
-
-#         if event is None:
-#             return Response({"msg": "Event not found"}, status=status.HTTP_404_NOT_FOUND)
-
-#         serializer = PostEventSerializer(event, data=request.data)
-
-#         if serializer.is_valid():
-#             serializer.save()
-#             return Response({"msg": "Event updated successfully"})
-#         else:
-#             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class CreateEvent(APIView):
     def post(self, request, format=None):
@@ -472,25 +452,14 @@ class EventSlotsListView(ListAPIView):
     def get_queryset(self):
         event_id = self.kwargs.get("id")
         return EventSlot.objects.filter(event_id=event_id)
-
-
-# class FeedbackCreateView(generics.CreateAPIView):
-#     queryset = Feedback.objects.all()
-#     serializer_class = FeedbackSerializer
-#     permission_classes = [permissions.IsAuthenticated]
-
-#     def perform_create(self, serializer):
-#         # Set the user based on the current logged-in user
-#         serializer.save(user=self.request.user)
-
-# class UserFeedbackListView(APIView):
-#     permission_classes = [permissions.IsAuthenticated]
-
-#     def get(self, request):
-#         # Get feedback for the current user
-#         feedback = Feedback.objects.filter(user=request.user)
-#         serializer = FeedbackSerializer(feedback, many=True)
-#         return Response(serializer.data, status=status.HTTP_200_OK)
-class FeedbackCreateView(generics.CreateAPIView):
-    queryset = Feedback.objects.all()
-    serializer_class = FeedbackSerializer
+class CreateEventMenu(APIView):
+    def post(self, request, format=None):
+        serializer = EventMenuSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(
+                {"msg": "Event menu created"}, status=status.HTTP_201_CREATED
+            )
+        else:
+            print(serializer.errors)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

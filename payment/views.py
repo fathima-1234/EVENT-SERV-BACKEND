@@ -37,70 +37,6 @@ from rest_framework.response import Response
 from rest_framework import status
 import stripe
 from .models import EventBooking  # Import your EventBooking model
-
-# class Start_payment(APIView):
-#     def post(self, request, format=None):
-#         try:
-#             amount = request.data["amount"]
-#             amount_in_cents = int(float(amount) * 100)
-
-#             current_user = request.data["user"]
-#             user = User.objects.get(id=current_user)
-
-#             event = request.data["event"]
-#             event = Event.objects.get(id=event)
-
-#             slot = request.data["slot"]
-#             current_slot = EventSlot.objects.get(id=slot)
-
-#             number_of_members = request.data.get("number_of_members")
-#             if number_of_members is None:
-#                 return Response({"error": "Number of members is required"}, status=status.HTTP_400_BAD_REQUEST)
-
-#             # Set your Stripe secret key
-#             stripe.api_key = "settings.STRIPE_SECRET_KEY"
-
-#             # Create a PaymentIntent
-#             intent = stripe.PaymentIntent.create(
-#                 amount=amount_in_cents,
-#                 currency="usd",
-#                 payment_method=request.data.get("payment_method"),
-#                 confirmation_method='manual',
-#                 confirm=True,
-#             )
-
-#             order = EventBooking.objects.create(
-#                 user=user,
-#                 payment_intent_id=intent.id,
-#                 booking_date=datetime.now().date(),
-#                 event=event,
-#                 slot=current_slot,
-#                 menus=request.data.get("menus", []),
-#                 number_of_members=number_of_members,
-#             )
-
-#             serializer = EventBookingSerializer(order)
-
-#             data = {"clientSecret": intent.client_secret, "order": serializer.data}
-#             return Response(data)
-#         except User.DoesNotExist:
-#             return Response({"error": "User not found"}, status=status.HTTP_404_NOT_FOUND)
-#         except Event.DoesNotExist:
-#             return Response({"error": "Event not found"}, status=status.HTTP_404_NOT_FOUND)
-#         except EventSlot.DoesNotExist:
-#             return Response({"error": "Event slot not found"}, status=status.HTTP_404_NOT_FOUND)
-#         except stripe.error.CardError as e:
-#             # If the card is declined, respond with a 402 status code
-#             return Response({"error": str(e)}, status=status.HTTP_402_PAYMENT_REQUIRED)
-#         except Exception as e:
-#             # Log the error for debugging purposes
-#             print("Error occurred during payment:", str(e))
-#             # Return a custom error response to the user
-#             return Response({"error": "An unexpected error occurred. Please contact support."}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
-
-
-
 from django.http import HttpResponseRedirect
 
 
@@ -144,43 +80,6 @@ def create_checkout_session(request):
             return JsonResponse({'error': str(e)}, status=400)
     except json.JSONDecodeError:
         return JsonResponse({'error': 'Invalid JSON payload'}, status=400)
-
-class PaymentSuccessView(APIView):
-    def get(self, request):
-        session_id = request.GET.get('session_id')
-        booking_id = request.GET.get('booking_id')
-
-        if not session_id or not booking_id:
-            return JsonResponse({'error': 'Invalid request'}, status=400)
-
-        # Handle the payment success (e.g., update booking status)
-        try:
-            booking = EventBooking.objects.get(pk=booking_id, stripe_session_id=session_id)
-            booking.is_paid = True
-            booking.status = 'approved'
-            booking.save()
-        except EventBooking.DoesNotExist:
-            return JsonResponse({'error': 'Invalid booking or session ID'}, status=400)
-
-        return redirect(f'/bookings?success=true')
-
-class UpdateBookingView(APIView):
-    def put(self, request, booking_id):
-        try:
-            booking = EventBooking.objects.get(pk=booking_id)
-
-            # Assuming you receive the payment details in the request data
-            booking.booking_payment_id = request.data.get('booking_payment_id')
-            booking.is_paid = True
-            booking.status = 'approved'  # You may adjust this based on your logic
-            booking.save()
-
-            return Response({'message': 'Booking details updated successfully'}, status=status.HTTP_200_OK)
-        except EventBooking.DoesNotExist:
-            return Response({'error': 'Booking not found'}, status=status.HTTP_404_NOT_FOUND)
-        except Exception as e:
-            return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
 
 
 
@@ -268,114 +167,6 @@ def confirm_booking(request):
       
 
 
-class Start_payment(APIView):
-    def post(self, request, format=None):
-        try:
-            # amount = request.data["amount"]
-            
-            
-
-            current_user = request.data["user"]
-            user = User.objects.get(id=current_user)
-
-            event = request.data["event"]
-            event = Event.objects.get(id=event)
-
-            slot = request.data["slot"]
-            current_slot = EventSlot.objects.get(id=slot)
-            numberOfMembers = request.data.get("numberOfMembers")
-            if numberOfMembers is None:
-                return Response({"error": "Number of members is required"}, status=status.HTTP_400_BAD_REQUEST)
-            price_per_person = event.price_per_person
-            numberOfMembers = int(request.data.get("numberOfMembers", 1))  # Default to 1 if not provided
-            amount = price_per_person * numberOfMembers
-            amount_in_paise = int(float(amount) * 100)
-
-            PUBLIC_KEY = "rzp_test_2ucW3iSEdhyu2w"
-            SECRET_KEY = "CUfK0bqOT6ng5BnBf1Um5gkz"
-
-            # setup razorpay client
-            client = razorpay.Client(auth=(PUBLIC_KEY, SECRET_KEY))
-
-            payment = client.order.create(
-                {"amount": amount_in_paise, "currency": "INR", "payment_capture": "1"}
-            )
-
-            order_id = payment["id"]  # Corrected line to access payment id as order_id
-
-            print("Order ID:", order_id)
-
-            order = EventBooking.objects.create(
-                user=user,
-                booking_order_id=order_id,
-                booking_date=datetime.now().date(),
-                event=event,
-                slot=current_slot,
-                menus=request.data.get("menus", []),
-                numberOfMembers=numberOfMembers,
-                
-            )
-
-            serializer = EventBookingSerializer(order)
-
-            data = {"payment": payment, "order": serializer.data}
-            return Response(data)
-        except User.DoesNotExist:
-            return Response(
-                {"error": "User not found"}, status=status.HTTP_404_NOT_FOUND
-            )
-        except Event.DoesNotExist:
-            return Response(
-                {"error": "Event not found"}, status=status.HTTP_404_NOT_FOUND
-            )
-        except EventSlot.DoesNotExist:
-            return Response(
-                {"error": "Event slot not found"}, status=status.HTTP_404_NOT_FOUND
-            )
-
-        # except Exception as e:
-        #     # Log the error for debugging purposes
-        #     print("Error occurred during payment:", str(e))
-            # Return a custom error response to the user
-        return Response(
-                {"error": "An unexpected error occurred. Please contact support."},
-                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            )
-
-class Handle_payment_success(APIView):
-    def post(self, request, format=None):
-        try:
-            payment_intent_id = request.data["payment_intent"]
-            slot_id = request.data["slot"]
-
-            # Retrieve the payment intent from Stripe
-            payment_intent = stripe.PaymentIntent.retrieve(payment_intent_id)
-
-            # Get relevant information from the payment intent
-            stripe_order_id = payment_intent.get("id")
-            stripe_payment_id = payment_intent.get("charges").data[0].get("id")
-
-            # Retrieve the corresponding order from your database
-            order = EventBooking.objects.get(payment_intent_id=stripe_order_id)
-
-            # Update the order with payment information
-            order.booking_payment_id = stripe_payment_id
-            order.is_paid = True
-            order.save()
-
-            # Update the corresponding slot as booked
-            slot = EventSlot.objects.get(id=slot_id)
-            slot.is_booked = True
-            slot.save()
-
-            # Add any additional logic or notifications here
-
-            return JsonResponse({"message": "Payment successfully received!", "order_id": stripe_order_id})
-
-        except Exception as e:
-            # Handle errors appropriately
-            return JsonResponse({"error": str(e)}, status=500)
-
 from rest_framework.permissions import IsAuthenticated
 
 from rest_framework.generics import ListCreateAPIView, RetrieveAPIView
@@ -400,45 +191,6 @@ class ServicerBookingsAPIView(APIView):
 
 
 
-@api_view(["PUT"])
-def Update_booking(request, booking_id):
-    try:
-        booking = EventBooking.objects.get(id=booking_id)
-    except EventBooking.DoesNotExist:
-        return Response({"error": "Booking not found"}, status=404)
-
-    serializer = EventBookingUpdateSerializer(booking, data=request.data)
-    if serializer.is_valid():
-        
-            
-            
-        if serializer.validated_data.get("status") in ["rejected", "cancelled"]:
-            # Initiate refund using Razorpay API
-            PUBLIC_KEY = "rzp_test_2ucW3iSEdhyu2w"
-            SECRET_KEY = "CUfK0bqOT6ng5BnBf1Um5gkz"
-            # Convert Decimal to float before creating the refund data
-            refund_amount = float(booking.Event.price_per_person) * 100
-
-            client = razorpay.Client(auth=(PUBLIC_KEY, SECRET_KEY))
-            # Fetch payment details using the order ID
-
-            # Retrieve payment ID from payment details
-            payment_id = booking.booking_payment_id
-            print(payment_id)
-            refund_data = {
-                "payment_id": payment_id,
-                "amount": refund_amount,
-                "notes": {"reason": "User cancelled order"},
-            }
-            refund = client.refund.create(data=refund_data)
-            booking.status = "cancelled"
-            booking.is_paid = False
-        serializer.save()
-        booking_updated_signal.send(sender=Update_booking, booking=booking)
-
-        return Response(serializer.data, status=200)
-    else:
-        return Response(serializer.errors, status=400)
 
 
 from decimal import Decimal
@@ -446,49 +198,6 @@ from decimal import Decimal
 from django.core.exceptions import ObjectDoesNotExist
 
 
-# @api_view(["PUT"])
-# def cancel_booking(request, booking_id):
-#     try:
-#         booking = EventBooking.objects.get(id=booking_id)
-#     except ObjectDoesNotExist:
-#         return Response(
-#             {"error": "Booking not found"}, status=status.HTTP_404_NOT_FOUND
-#         )
-
-#     try:
-#         booking.slot.is_booked = False
-#         booking.slot.save()
-
-#         serializer = EventBookingUpdateSerializer(booking, data=request.data)
-#         serializer.is_valid(raise_exception=True)
-
-#         if booking.status == "cancelled":
-#             return Response(
-#                 {"error": "Booking is already cancelled"},
-#                 status=status.HTTP_400_BAD_REQUEST,
-#             )
-
-#         refund_amount = float(booking.event.price_per_person) * 100
-
-#         client = razorpay.Client(auth=("YOUR_PUBLIC_KEY", "YOUR_SECRET_KEY"))
-
-#         refund_data = {
-#             "payment_id": booking.booking_payment_id,
-#             "amount": refund_amount,
-#             "notes": {"reason": "User cancelled order"},
-#         }
-#         refund = client.refund.create(data=refund_data)
-
-#         booking.status = "cancelled"
-#         booking.is_paid = False
-#         booking.save()
-#         refund = client.refund.fetch(refund["id"])
-#         booking_updated_signal.send(sender=cancel_booking, booking=booking)
-
-#         return Response(serializer.data, status=status.HTTP_200_OK)
-
-#     except Exception as e:
-#         return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 @api_view(["PUT"])
 def cancel_booking(request, booking_id):
     try:
@@ -640,3 +349,22 @@ def get_booking_details(request, booking_id):
     serializer = EventBookingSerializer(booking)  # Use your serializer here
 
     return JsonResponse(serializer.data)
+
+
+
+
+@api_view(['PATCH'])
+def update_booking_status(request, booking_id):
+    try:
+        booking = EventBooking.objects.get(pk=booking_id)
+    except Booking.DoesNotExist:
+        return Response({'error': 'Booking not found'}, status=status.HTTP_404_NOT_FOUND)
+
+    if request.method == 'PATCH':
+        new_status = request.data.get('status', None)
+        if new_status is not None and new_status in ['pending', 'completed', 'rejected', 'given']:
+            booking.status = new_status
+            booking.save()
+            return Response({'message': 'Booking status updated successfully'})
+        else:
+            return Response({'error': 'Invalid status value'}, status=status.HTTP_400_BAD_REQUEST)

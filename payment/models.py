@@ -31,13 +31,13 @@ class EventBooking(models.Model):
         ("returned", "Returned"),
         
         
+        
     )
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default="pending")
-    # booking_payment_id = models.CharField(max_length=100)
-    # booking_order_id = models.CharField(max_length=100)
+    
     is_paid = models.BooleanField(default=False)
     booking_date = models.DateTimeField(auto_now=True)
-    # menus = models.JSONField(default=dict)
+   
     requirements = models.TextField()
     numberOfMembers = models.IntegerField()
     stripe_session_id = models.CharField(max_length=100, blank=True, null=True)

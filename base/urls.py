@@ -34,7 +34,7 @@ urlpatterns = [
     path("servicers/", Listservicer.as_view(), name="servicers"),
     path("blockservicer/<int:pk>/", BlockServicerView.as_view(), name="block-user"),
     path("profile/<int:pk>", GetProfile.as_view(), name="profile"),
-    path(
-        "getSingleUser/<int:id>/", views.GetSingleUser.as_view(), name="getDoctorInHome"
-    ),
+    # path(
+    #     "getSingleUser/<int:id>/", views.GetSingleUser.as_view(), name="getDoctorInHome"
+    # ),
 ]

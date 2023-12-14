@@ -158,7 +158,10 @@ def activateservicer(request, uidb64, token):
         user.is_staff = True
         user.save()
 
-        return HttpResponseRedirect("http://localhost:3000/servicersignin/")
+        # return HttpResponseRedirect("http://localhost:3000/servicersignin/")
+        return HttpResponse("Success: Servicer is verified,Thank you for signup, You can login after the approal of the admin ")
+    else:
+        return HttpResponse("token expaired")
 
 
 class Listuser(generics.ListCreateAPIView):
@@ -199,16 +202,6 @@ class GetProfile(APIView):
         return Response(serializer.data)
 
 
-class GetSingleUser(APIView):
-    def get(self, request, id):
-        try:
-            user = User.objects.get(id=id)
-            serializer = UserSerializer(user, many=False)
-            return Response(serializer.data)
-        except User.DoesNotExist:
-            return Response({"msg": "User not found"})
-        except Exception as e:
-            return Response({"msg": str(e)})
 
 
 class BlockServicerView(APIView):
