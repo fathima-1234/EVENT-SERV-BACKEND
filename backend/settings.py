@@ -14,7 +14,7 @@ import secrets
 from pathlib import Path
 import os
 from datetime import timedelta
-# from decouple import config
+from decouple import config
 # import cloudinary_storage
 
 from django.utils import timezone
@@ -26,11 +26,12 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-jctrqij%1no5yu_(2!0()9+$it-_dm2jej!!f=l7+xccvh%w@j'
-
+# SECRET_KEY = 'django-insecure-jctrqij%1no5yu_(2!0()9+$it-_dm2jej!!f=l7+xccvh%w@j'
+SECRET_KEY = config('SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+# DEBUG = True
 
+DEBUG = config('DEBUG', default=True, cast=bool)
 ALLOWED_HOSTS = []
 
 
@@ -168,14 +169,25 @@ WSGI_APPLICATION = 'backend.wsgi.application'
 #     }
 # }
 
+# DATABASES = {
+#     "default": {
+#         "ENGINE": "django.db.backends.postgresql",
+#         "NAME": "cateringservice",
+#         "USER": "postgres",
+#         "PASSWORD": "maryamnooh*1",
+#         "HOST": "localhost",
+#         "PORT": "5432",
+#     }
+# }
+
 DATABASES = {
     "default": {
-        "ENGINE": "django.db.backends.postgresql",
-        "NAME": "cateringservice",
-        "USER": "postgres",
-        "PASSWORD": "maryamnooh*1",
-        "HOST": "localhost",
-        "PORT": "5432",
+        "ENGINE": config('DB_ENGINE'),
+        "NAME": config('DB_NAME'),
+        "USER": config('DB_USER'),
+        "PASSWORD": config('DB_PASSWORD'),
+        "HOST": config('DB_HOST'),
+        "PORT": config('DB_PORT', default='', cast=int),
     }
 }
 # Password validation
@@ -268,15 +280,30 @@ CELERY_RESULT_BACKEND = 'db+postgresql://postgres:maryamnooh*1@localhost:5432/ca
 #CELERY BEAT
 CELERY_BEAT_SCHEDULER = 'django_celery_beat.schedulers:DatabaseScheduler'
 
-# smtp
-EMAIL_USE_TLS=True
-EMAIL_HOST = "smtp.gmail.com"
-EMAIL_PORT = 587
-EMAIL_HOST_USER = "caterserv19@gmail.com"
-EMAIL_HOST_PASSWORD = "icpd ddtx same hagn"
+# # smtp
+# EMAIL_USE_TLS=True
+# EMAIL_HOST = "smtp.gmail.com"
+# EMAIL_PORT = 587
+# EMAIL_HOST_USER = "caterserv19@gmail.com"
+# EMAIL_HOST_PASSWORD = "icpd ddtx same hagn"
 
 
-# stripe payment configuration
-STRIPE_SECRET_KEY = 'sk_test_51OETQdSIwzdmVhzBNdJp9q3Ai5YqXUkedIlqMQapgapqiGKQiuiIo4S6LMO3jR3ppyeFRp69Zs89NGLtciK536uK00CooGkKOz'
-STRIPE_PUBLIC_KEY = 'pk_test_51OETQdSIwzdmVhzBauVaeNDhXEW06fX5JB6XGaF4BrFmWcg4zyjkfB6slzIvhsVDNlRbK9yW4MBalU1yQkbFOnW900fGKOwaX9'
-SITE_URL = 'http://localhost:3000'
+# # stripe payment configuration
+# STRIPE_SECRET_KEY = 'sk_test_51OETQdSIwzdmVhzBNdJp9q3Ai5YqXUkedIlqMQapgapqiGKQiuiIo4S6LMO3jR3ppyeFRp69Zs89NGLtciK536uK00CooGkKOz'
+# STRIPE_PUBLIC_KEY = 'pk_test_51OETQdSIwzdmVhzBauVaeNDhXEW06fX5JB6XGaF4BrFmWcg4zyjkfB6slzIvhsVDNlRbK9yW4MBalU1yQkbFOnW900fGKOwaX9'
+# SITE_URL = 'http://localhost:3000'
+
+
+# SMTP Configuration
+EMAIL_USE_TLS = config('EMAIL_USE_TLS', default=True, cast=bool)
+EMAIL_HOST = config('EMAIL_HOST')
+EMAIL_PORT = config('EMAIL_PORT', default=587, cast=int)
+EMAIL_HOST_USER = config('EMAIL_HOST_USER')
+EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD')
+
+# Stripe Payment Configuration
+STRIPE_SECRET_KEY = config('STRIPE_SECRET_KEY')
+STRIPE_PUBLIC_KEY = config('STRIPE_PUBLIC_KEY')
+
+# Site URL
+SITE_URL = config('SITE_URL', default='http://localhost:3000')
