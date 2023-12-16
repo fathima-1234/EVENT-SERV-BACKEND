@@ -15,8 +15,6 @@ from pathlib import Path
 import os
 from datetime import timedelta
 from decouple import config
-# import cloudinary_storage
-
 from django.utils import timezone
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -27,7 +25,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 # SECURITY WARNING: keep the secret key used in production secret!
 
-SECRET_KEY = config('SECRET_KEY')
+SECRET_KEY = 'django-insecure-jctrqij%1no5yu_(2!0()9+$it-_dm2jej!!f=l7+xccvh%w@j'
 # SECURITY WARNING: don't run with debug turned on in production!
 
 
