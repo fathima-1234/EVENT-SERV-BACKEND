@@ -286,3 +286,10 @@ STRIPE_PUBLIC_KEY = config('STRIPE_PUBLIC_KEY')
 
 # Site URL
 SITE_URL = config('SITE_URL', default='http://localhost:3000')
+
+
+
+STATIC_URL = '/static/'
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR,'static'),
+]
