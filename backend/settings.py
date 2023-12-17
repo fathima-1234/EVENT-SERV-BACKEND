@@ -41,8 +41,9 @@ INSTALLED_APPS = [
     "daphne",
     "channels",
 
-    "cloudinary",
-    "cloudinary_storage",
+    'cloudinary_storage',
+    'django.contrib.staticfiles',
+    'cloudinary',
 
 
     'django.contrib.admin',
@@ -50,7 +51,7 @@ INSTALLED_APPS = [
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
-    'django.contrib.staticfiles',
+    
 
     "rest_framework",
     "rest_framework.authtoken",
@@ -193,8 +194,8 @@ import dj_database_url
 DATABASES = {"default": dj_database_url.parse(config("DATABASE_URL"))}
 # Password validation
 # https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators
-MEDIA_URL = '/photos/'
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR,'media')
 
 AUTH_PASSWORD_VALIDATORS = [
     {
