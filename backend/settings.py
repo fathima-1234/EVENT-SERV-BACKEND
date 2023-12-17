@@ -16,8 +16,10 @@ import os
 from datetime import timedelta
 from decouple import config
 from django.utils import timezone
+import cloudinary_storage
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+
 
 
 # Quick-start development settings - unsuitable for production
@@ -37,29 +39,38 @@ ALLOWED_HOSTS = ['*']
 
 INSTALLED_APPS = [
     "daphne",
-    
     "channels",
+
+    "cloudinary",
+    "cloudinary_storage",
+
+
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+
     "rest_framework",
     "rest_framework.authtoken",
     'corsheaders',
+
     "rest_framework_simplejwt",
     "rest_framework_simplejwt.token_blacklist",
+
     "base",
     "servicer",
     "events",
+
     'django_celery_results',
     'django_celery_beat',
     "send_mail_app",
+
     'user',
     'payment',
     "chatapp",
-   
+    
     
     
 ]
@@ -293,3 +304,11 @@ STATIC_URL = '/static/'
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR,'static'),
 ]
+
+CLOUDINARY_STORAGE = {
+    "CLOUD_NAME": "dsirooykv",
+    "API_KEY": "735665836197947",
+    "API_SECRET": "gnrFP7IpmjVM5-4xFogK8U5H7ao",
+}
+
+DEFAULT_FILE_STORAGE = "cloudinary_storage.storage.MediaCloudinaryStorage"
