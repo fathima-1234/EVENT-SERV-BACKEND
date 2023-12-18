@@ -127,7 +127,7 @@ SIMPLE_JWT = {
 
 MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
-    
+
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -180,16 +180,16 @@ WSGI_APPLICATION = 'backend.wsgi.application'
 # }
 
 
-DATABASES = {
-    "default": {
-        "ENGINE": config('DB_ENGINE'),
-        "NAME": config('DB_NAME'),
-        "USER": config('DB_USER'),
-        "PASSWORD": config('DB_PASSWORD'),
-        "HOST": config('DB_HOST'),
-        "PORT": config('DB_PORT', default='', cast=int),
-    }
-}
+# DATABASES = {
+#     "default": {
+#         "ENGINE": config('DB_ENGINE'),
+#         "NAME": config('DB_NAME'),
+#         "USER": config('DB_USER'),
+#         "PASSWORD": config('DB_PASSWORD'),
+#         "HOST": config('DB_HOST'),
+#         "PORT": config('DB_PORT', default='', cast=int),
+#     }
+# }
 import dj_database_url
 DATABASES = {"default": dj_database_url.parse(config("DATABASE_URL"))}
 # Password validation
