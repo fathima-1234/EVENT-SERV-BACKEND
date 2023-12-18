@@ -233,6 +233,7 @@ AUTH_USER_MODEL = "base.User"
 CORS_ALLOWED_ORIGINS = ["http://localhost:3000",
 
                       "https://event-serv.vercel.app",
+                      "https://event-serv-fathima-suhras-projects.vercel.app",
                       ]
 
 CORS_ALLOW_METHODS = [
