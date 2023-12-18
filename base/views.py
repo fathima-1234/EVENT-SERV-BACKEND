@@ -100,11 +100,11 @@ def activate(request, uidb64, token):
     #     return HttpResponse("Success: User is verified")
     # else:
     #     return HttpResponse("token expaired")
-        return HttpResponseRedirect("http://localhost:3000/login?activation=success&message=Account%20activated.%20You%20can%20now%20log%20in")
+        return HttpResponseRedirect("https://event-serv.vercel.app/login?activation=success&message=Account%20activated.%20You%20can%20now%20log%20in")
     else:
         
         # Redirect with error message
-        return HttpResponseRedirect("http://localhost:3000/login?activation=error&message=Activation%20failed.%20Please%20try%20again")
+        return HttpResponseRedirect("https://event-serv.vercel.app/login?activation=error&message=Activation%20failed.%20Please%20try%20again")
 
     
         
