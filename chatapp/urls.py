@@ -24,6 +24,9 @@ urlpatterns = [
         name="message-detail",
     ),
     path("roomCreate/", views.RoomCreateAPIView.as_view(), name="room-create"),
-    path('rooms/<int:room_id>/chatmessages/', ChatMessagesView.as_view(), name='chat_messages'),
-
+    path(
+        "rooms/<int:room_id>/chatmessages/",
+        ChatMessagesView.as_view(),
+        name="chat_messages",
+    ),
 ]

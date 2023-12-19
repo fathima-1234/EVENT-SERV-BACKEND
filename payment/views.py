@@ -1,4 +1,4 @@
-from django.shortcuts import render,redirect
+from django.shortcuts import render, redirect
 from rest_framework.views import APIView
 from base.models import User, Servicer
 from events.models import Event, EventSlot, EventMenu
@@ -14,7 +14,7 @@ import json
 from .models import EventBooking, Order
 from rest_framework.generics import ListAPIView
 from rest_framework import status
-from rest_framework.decorators import api_view,permission_classes
+from rest_framework.decorators import api_view, permission_classes
 from decimal import Decimal
 from .signals import order_paid_signal, booking_updated_signal
 from django.core.mail import send_mail
@@ -23,6 +23,7 @@ from django.conf import settings
 import stripe
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
+
 stripe.api_key = settings.STRIPE_SECRET_KEY
 
 from django.http import JsonResponse
@@ -40,57 +41,63 @@ from .models import EventBooking  # Import your EventBooking model
 from django.http import HttpResponseRedirect
 
 
-
 @csrf_exempt
 @require_POST
 def create_checkout_session(request):
     try:
         payload = json.loads(request.body)
-        print('Payload:', payload)
-        booking_id = payload.get('booking_id')
+        print("Payload:", payload)
+        booking_id = payload.get("booking_id")
         if not booking_id:
-            return JsonResponse({'error': 'Booking ID is required'}, status=400)
+            return JsonResponse({"error": "Booking ID is required"}, status=400)
 
         booking = get_object_or_404(EventBooking, pk=booking_id)
 
         session = stripe.checkout.Session.create(
-            payment_method_types=['card'],
-            line_items=[{
-                'price_data': {
-                    'currency': 'inr',  # Change to your currency
-                    'product_data': {
-                        'name': booking.event.name,
-                        # 'images': [booking.event.image.url] if booking.event.image else [],
+            payment_method_types=["card"],
+            line_items=[
+                {
+                    "price_data": {
+                        "currency": "inr",  # Change to your currency
+                        "product_data": {
+                            "name": booking.event.name,
+                            # 'images': [booking.event.image.url] if booking.event.image else [],
+                        },
+                        "unit_amount": int(
+                            booking.calculate_total_charges() * 100
+                        ),  # Amount in cents
                     },
-                    'unit_amount': int(booking.calculate_total_charges() * 100),  # Amount in cents
-                },
-                'quantity': 1,
-            }],
-            mode='payment',
+                    "quantity": 1,
+                }
+            ],
+            mode="payment",
             # success_url=settings.SITE_URL + '/order-status/?success=true',
-            success_url=settings.SITE_URL + f'/order-status/?success=true&amount={booking.calculate_total_charges()}&currency=inr',
-            cancel_url=settings.SITE_URL + '/order-status/?canceled=true',
+            success_url=settings.SITE_URL
+            + f"/order-status/?success=true&amount={booking.calculate_total_charges()}&currency=inr",
+            cancel_url=settings.SITE_URL + "/order-status/?canceled=true",
         )
         booking.is_paid = True
-        booking.status = 'completed'
+        booking.status = "completed"
         booking.save()
 
-        return JsonResponse({'session_id': session.id, 'stripe_public_key': settings.STRIPE_PUBLIC_KEY})
+        return JsonResponse(
+            {"session_id": session.id, "stripe_public_key": settings.STRIPE_PUBLIC_KEY}
+        )
     except stripe.error.StripeError as e:
-            return JsonResponse({'error': str(e)}, status=400)
+        return JsonResponse({"error": str(e)}, status=400)
     except json.JSONDecodeError:
-        return JsonResponse({'error': 'Invalid JSON payload'}, status=400)
+        return JsonResponse({"error": "Invalid JSON payload"}, status=400)
 
 
-
-        
 def create_booking(request):
     try:
         # Extract data from the request
-        event_id = request.POST.get('event')
-        booked_slot_id = request.POST.get('booked_slot')
-        number_of_members = request.POST.get('number_of_members')
-        menu_ids = request.POST.getlist('menus')  # Assuming 'menus' is an array of menu ids
+        event_id = request.POST.get("event")
+        booked_slot_id = request.POST.get("booked_slot")
+        number_of_members = request.POST.get("number_of_members")
+        menu_ids = request.POST.getlist(
+            "menus"
+        )  # Assuming 'menus' is an array of menu ids
 
         # Retrieve event, booked slot, and menus
         event = get_object_or_404(Event, pk=event_id)
@@ -112,24 +119,25 @@ def create_booking(request):
 
         # Return the response to the frontend
         response_data = {
-            'success': True,
-            'booking': booking_serializer.data,
+            "success": True,
+            "booking": booking_serializer.data,
         }
         return JsonResponse(response_data)
 
     except Exception as e:
         # Handle errors and return an appropriate response
-        error_data = {'success': False, 'error': str(e)}
+        error_data = {"success": False, "error": str(e)}
         return JsonResponse(error_data, status=500)
 
-@api_view(['POST'])
+
+@api_view(["POST"])
 @permission_classes([IsAuthenticated])
 def confirm_booking(request):
     try:
-        event_id = request.data.get('eventId')
-        slot_ids = request.data.get('selectedSlots')
-        number_of_members = request.data.get('numberOfMembers')
-        requirements = request.data.get('requirements')
+        event_id = request.data.get("eventId")
+        slot_ids = request.data.get("selectedSlots")
+        number_of_members = request.data.get("numberOfMembers")
+        requirements = request.data.get("requirements")
 
         # Fetch the event and slots from the database
         event = Event.objects.get(id=event_id)
@@ -141,10 +149,10 @@ def confirm_booking(request):
             user=request.user,
             event=event,
             slot=slots[0],  # Assuming only one slot is selected for simplicity
-            status='pending',  # You might want to set an appropriate initial status
+            status="pending",  # You might want to set an appropriate initial status
             numberOfMembers=number_of_members,
             requirements=requirements,
-            # menus={}, 
+            # menus={},
             # ... other fields ...
         )
 
@@ -153,18 +161,9 @@ def confirm_booking(request):
             slot.is_booked = True
             slot.save()
 
-        return Response({'message': 'Booking confirmed successfully'})
+        return Response({"message": "Booking confirmed successfully"})
     except Exception as e:
-        return Response({'error': str(e)}, status=400)
-
-
-
-
-
-
-
-
-      
+        return Response({"error": str(e)}, status=400)
 
 
 from rest_framework.permissions import IsAuthenticated
@@ -188,9 +187,6 @@ class ServicerBookingsAPIView(APIView):
             return Response(serializer.data, status=status.HTTP_200_OK)
         except EventBooking.DoesNotExist:
             return Response("Bookings not found", status=status.HTTP_404_NOT_FOUND)
-
-
-
 
 
 from decimal import Decimal
@@ -220,6 +216,7 @@ def cancel_booking(request, booking_id):
 
     except Exception as e:
         return JsonResponse({"error": str(e)}, status=500)
+
 
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
@@ -341,9 +338,6 @@ def send_booking_updated_notification(sender, booking, **kwargs):
     )
 
 
-
-
-
 def get_booking_details(request, booking_id):
     booking = get_object_or_404(EventBooking, id=booking_id)
     serializer = EventBookingSerializer(booking)  # Use your serializer here
@@ -351,20 +345,27 @@ def get_booking_details(request, booking_id):
     return JsonResponse(serializer.data)
 
 
-
-
-@api_view(['PATCH'])
+@api_view(["PATCH"])
 def update_booking_status(request, booking_id):
     try:
         booking = EventBooking.objects.get(pk=booking_id)
     except Booking.DoesNotExist:
-        return Response({'error': 'Booking not found'}, status=status.HTTP_404_NOT_FOUND)
+        return Response(
+            {"error": "Booking not found"}, status=status.HTTP_404_NOT_FOUND
+        )
 
-    if request.method == 'PATCH':
-        new_status = request.data.get('status', None)
-        if new_status is not None and new_status in ['pending', 'completed', 'rejected', 'given']:
+    if request.method == "PATCH":
+        new_status = request.data.get("status", None)
+        if new_status is not None and new_status in [
+            "pending",
+            "completed",
+            "rejected",
+            "given",
+        ]:
             booking.status = new_status
             booking.save()
-            return Response({'message': 'Booking status updated successfully'})
+            return Response({"message": "Booking status updated successfully"})
         else:
-            return Response({'error': 'Invalid status value'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response(
+                {"error": "Invalid status value"}, status=status.HTTP_400_BAD_REQUEST
+            )

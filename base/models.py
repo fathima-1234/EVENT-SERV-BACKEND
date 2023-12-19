@@ -4,7 +4,6 @@ from django.contrib.auth.models import AbstractUser, BaseUserManager
 
 class MyAccountManager(BaseUserManager):
     def create_user(self, email, password=None, **extra_fields):
-        
         if not email:
             raise ValueError("User must have an email address")
 
@@ -13,7 +12,7 @@ class MyAccountManager(BaseUserManager):
 
         user.set_password(password)
         user.save(using=self._db)
-        
+
         return user
 
     def create_superuser(self, email, password=None, **extra_fields):
@@ -48,7 +47,7 @@ class User(AbstractUser):
     is_active = models.BooleanField(default=False)
     is_superadmin = models.BooleanField(default=False)
     is_servicer = models.BooleanField(default=False)
-    is_profile   = models.BooleanField(default=False)
+    is_profile = models.BooleanField(default=False)
 
     USERNAME_FIELD = "email"
     REQUIRED_FIELDS = ["username", "first_name", "last_name", "phone_number"]

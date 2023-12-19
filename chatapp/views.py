@@ -103,7 +103,9 @@ class RoomCreateAPIView(APIView):
 # views.py
 class ChatMessagesView(APIView):
     def get(self, request, room_id):
-        user_id = request.query_params.get('user')  # assuming you're using Django authentication
+        user_id = request.query_params.get(
+            "user"
+        )  # assuming you're using Django authentication
         messages = Message.objects.filter(room_id=room_id, author_id=user_id)
         serializer = MessageSerializer(messages, many=True)
         return Response(serializer.data)

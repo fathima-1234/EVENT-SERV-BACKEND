@@ -20,7 +20,6 @@ from django.db.models import Q
 from django.http import HttpResponse
 
 
-
 @api_view(["GET"])
 def getRoutes(request):
     routes = [
@@ -97,18 +96,18 @@ def activate(request, uidb64, token):
         print("checked")
         user.is_active = True
         user.save()
-    #     return HttpResponse("Success: User is verified")
-    # else:
-    #     return HttpResponse("token expaired")
-        return HttpResponseRedirect("https://event-serv.vercel.app/login?activation=success&message=Account%20activated.%20You%20can%20now%20log%20in")
+        #     return HttpResponse("Success: User is verified")
+        # else:
+        #     return HttpResponse("token expaired")
+        return HttpResponseRedirect(
+            "https://event-serv.vercel.app/login?activation=success&message=Account%20activated.%20You%20can%20now%20log%20in"
+        )
     else:
-        
         # Redirect with error message
-        return HttpResponseRedirect("https://event-serv.vercel.app/login?activation=error&message=Activation%20failed.%20Please%20try%20again")
+        return HttpResponseRedirect(
+            "https://event-serv.vercel.app/login?activation=error&message=Activation%20failed.%20Please%20try%20again"
+        )
 
-    
-        
-    
 
 class ServicerRegistration(APIView):
     def post(self, request, format=None):
@@ -159,7 +158,9 @@ def activateservicer(request, uidb64, token):
         user.save()
 
         # return HttpResponseRedirect("http://localhost:3000/servicersignin/")
-        return HttpResponse("Success: Servicer is verified,Thank you for signup, You can login after the approal of the admin ")
+        return HttpResponse(
+            "Success: Servicer is verified,Thank you for signup, You can login after the approal of the admin "
+        )
     else:
         return HttpResponse("token expaired")
 
@@ -184,7 +185,6 @@ class BlockUserView(APIView):
         return Response({"msg": 200})
 
 
-
 class Singleuser(APIView):
     def get(self, request, pk):
         query = User.objects.get(id=pk)
@@ -200,8 +200,6 @@ class GetProfile(APIView):
         serializer = UserSerializer(user, many=True)
 
         return Response(serializer.data)
-
-
 
 
 class BlockServicerView(APIView):

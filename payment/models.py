@@ -29,32 +29,27 @@ class EventBooking(models.Model):
         ("complete", "Complete"),
         ("cancelled", "Cancelled"),
         ("returned", "Returned"),
-        
-        
-        
     )
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default="pending")
-    
+
     is_paid = models.BooleanField(default=False)
     booking_date = models.DateTimeField(auto_now=True)
-   
+
     requirements = models.TextField()
     numberOfMembers = models.IntegerField()
     stripe_session_id = models.CharField(max_length=100, blank=True, null=True)
     PAYMENT_STATUS_CHOICES = (
-        ('pending', 'Pending'),
-        ('completed', 'Completed'),
-       
+        ("pending", "Pending"),
+        ("completed", "Completed"),
     )
 
-    payment_status = models.CharField(max_length=20, choices=PAYMENT_STATUS_CHOICES, default='pending')
-    
+    payment_status = models.CharField(
+        max_length=20, choices=PAYMENT_STATUS_CHOICES, default="pending"
+    )
+
     def calculate_total_charges(self):
-   
         total_charges = self.event.price_per_person * self.numberOfMembers
         return total_charges
-
-  
 
     def __str__(self):
         return f"{self.user.username} - {self.event.name} - {self.slot.date}"

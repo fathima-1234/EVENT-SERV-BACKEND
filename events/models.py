@@ -5,7 +5,6 @@ from django.utils import timezone
 from datetime import date
 
 
-
 class EventCategory(models.Model):
     name = models.CharField(max_length=50)
     description = models.CharField(max_length=50)
@@ -19,27 +18,26 @@ class EventCategory(models.Model):
         return self.name
 
 
-
 class Event(models.Model):
     name = models.CharField(max_length=500, null=False)
     year_manufactured = models.PositiveIntegerField()
     seating_capacity = models.PositiveIntegerField()
     description = models.CharField(max_length=600, null=False)
     category = models.ForeignKey(EventCategory, on_delete=models.CASCADE)
-    image = models.ImageField(upload_to="photos/events",null=True, blank=True)
-    image1 = models.ImageField(upload_to="photos/events",null=True, blank=True)
-    image2 = models.ImageField(upload_to="photos/events",null=True, blank=True)
+    image = models.ImageField(upload_to="photos/events", null=True, blank=True)
+    image1 = models.ImageField(upload_to="photos/events", null=True, blank=True)
+    image2 = models.ImageField(upload_to="photos/events", null=True, blank=True)
     is_active = models.BooleanField(default=True)
     price_per_person = models.DecimalField(max_digits=10, decimal_places=2)
     is_approved = models.BooleanField(default=True)
     is_rejected = models.BooleanField(default=False)
     is_veg = models.BooleanField(default=False)
     servicer = models.ForeignKey(User, on_delete=models.CASCADE, related_name="events")
-    city = models.CharField(max_length=100, default = None)
+    city = models.CharField(max_length=100, default=None)
     start_time = models.DateTimeField(default=timezone.now)
     ending_time = models.DateTimeField(default=timezone.now)  # Set a default value
     renewal_email_sent = models.BooleanField(default=False)
-   
+
     def get_event_status(self):
         if self.is_rejected:
             return "Rejected"
@@ -52,6 +50,8 @@ class Event(models.Model):
 
     def __str__(self):
         return self.name
+
+
 class EventMenu(models.Model):
     name = models.CharField(max_length=50)
     description = models.CharField(max_length=50)
@@ -64,15 +64,13 @@ class EventMenu(models.Model):
     def __str__(self):
         return self.name
 
-        
+
 class Location(models.Model):
-    event = models.ForeignKey(Event, on_delete=models.CASCADE,default=None)
+    event = models.ForeignKey(Event, on_delete=models.CASCADE, default=None)
     name = models.CharField(max_length=200)
 
     def __str__(self):
         return self.name
-
-
 
 
 class EventSlot(models.Model):
@@ -85,6 +83,6 @@ class EventSlot(models.Model):
 
 
 class Feedback(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE,null=True)
-    event = models.ForeignKey(Event, on_delete=models.CASCADE,null = True)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
+    event = models.ForeignKey(Event, on_delete=models.CASCADE, null=True)
     comment = models.TextField()

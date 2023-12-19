@@ -10,7 +10,15 @@ from .models import UserProfile
 class UsersSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ['id', 'username', 'first_name', 'last_name', 'email', 'phone_number','is_active']
+        fields = [
+            "id",
+            "username",
+            "first_name",
+            "last_name",
+            "email",
+            "phone_number",
+            "is_active",
+        ]
 
 
 # # UserProfile
@@ -19,8 +27,6 @@ class UsersSerializer(serializers.ModelSerializer):
 #     class Meta:
 #         model = UserProfile
 #         fields = '__all__'
-        
-        
 
 
 # UserProfileListing
@@ -29,8 +35,10 @@ class UserProfileListSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = UserProfile
-        fields = '__all__'
+        fields = "__all__"
+
+
 class UserProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserProfile
-        fields = ['name', 'email', 'profile_photo']  
+        fields = ["name", "email", "profile_photo"]

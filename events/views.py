@@ -3,10 +3,15 @@ from rest_framework.response import Response
 from rest_framework.generics import ListCreateAPIView, RetrieveAPIView
 from rest_framework.views import APIView
 from rest_framework import status
-from events.models import Event, EventCategory,EventMenu
+from events.models import Event, EventCategory, EventMenu
 from base.models import User
 from servicer.models import Servicer
-from .serializers import EventSerializer, EventCategorySerializer, PostEventSerializer,EventMenuSerializer
+from .serializers import (
+    EventSerializer,
+    EventCategorySerializer,
+    PostEventSerializer,
+    EventMenuSerializer,
+)
 from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework import generics
@@ -14,7 +19,13 @@ from .models import EventSlot
 from .serializers import EventSlotSerializer, PostEventSlotSerializers
 from rest_framework.generics import ListAPIView
 from .models import EventSlot, Location
-from .serializers import EventSlotSerializer, LocationSerializer, PostLocationSerializer,EventDetailSerializer
+from .serializers import (
+    EventSlotSerializer,
+    LocationSerializer,
+    PostLocationSerializer,
+    EventDetailSerializer,
+)
+
 # from rest_framework.decorators import api_view, method_decorator
 from django.utils.decorators import method_decorator
 
@@ -46,13 +57,19 @@ def test(request):
     test_func.delay()
     return HttpResponse("Done")
 
+
 def send_mail_to_all(request):
     send_mail_func.delay()
     return HttpResponse("Sent")
 
+
 def schedule_mail(request):
-    schedule, created = CrontabSchedule.objects.get_or_create(hour = 20, minute = 45)
-    task = PeriodicTask.objects.create(crontab=schedule, name="schedule_mail_task_"+"5", task='send_mail_app.tasks.send_mail_func')#, args = json.dumps([[2,3]]))
+    schedule, created = CrontabSchedule.objects.get_or_create(hour=20, minute=45)
+    task = PeriodicTask.objects.create(
+        crontab=schedule,
+        name="schedule_mail_task_" + "5",
+        task="send_mail_app.tasks.send_mail_func",
+    )  # , args = json.dumps([[2,3]]))
     return HttpResponse("Done")
 
 
@@ -80,11 +97,14 @@ class EventListCreateView(generics.ListCreateAPIView):
 
     def perform_create(self, serializer):
         serializer.save(servicer=self.request.user)
+
+
 class CategoryView(APIView):
     def get(self, request, *args, **kwargs):
         categories = EventCategory.objects.all()
         serializer = EventCategorySerializer(categories, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
+
 
 # eventListing
 class EventListView(APIView):
@@ -94,7 +114,11 @@ class EventListView(APIView):
             serializer = EventSerializer(event, many=True)
             return Response(serializer.data, status=status.HTTP_200_OK)
         except:
-            return Response({'message': 'Event not found'}, status=status.HTTP_404_NOT_FOUND)
+            return Response(
+                {"message": "Event not found"}, status=status.HTTP_404_NOT_FOUND
+            )
+
+
 # SingleViewOfEvents
 class EventDetailView(APIView):
     def get(self, request, id):
@@ -103,9 +127,9 @@ class EventDetailView(APIView):
             serializer = EventDetailSerializer(event)
             return Response(serializer.data, status=status.HTTP_200_OK)
         except Event.DoesNotExist:
-            return Response({'message': 'Event not found'}, status=status.HTTP_404_NOT_FOUND)
-
-    
+            return Response(
+                {"message": "Event not found"}, status=status.HTTP_404_NOT_FOUND
+            )
 
 
 class HomeListEvent(RetrieveAPIView):
@@ -135,7 +159,9 @@ class EventUpdateView(APIView):
         try:
             Event = Event.objects.get(id=event_id)
         except Event.DoesNotExist:
-            return Response({"msg": "Event not found"}, status=status.HTTP_404_NOT_FOUND)
+            return Response(
+                {"msg": "Event not found"}, status=status.HTTP_404_NOT_FOUND
+            )
 
         serializer = PostEventSerializer(Event, data=request.data, partial=True)
 
@@ -144,6 +170,7 @@ class EventUpdateView(APIView):
             return Response({"msg": "Event updated successfully"})
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 
 class CreateEvent(APIView):
     def post(self, request, format=None):
@@ -198,7 +225,9 @@ class ApproveEvent(APIView):
         try:
             event = Event.objects.get(id=event_id)
         except Event.DoesNotExist:
-            return Response({"msg": "Event not found"}, status=status.HTTP_404_NOT_FOUND)
+            return Response(
+                {"msg": "Event not found"}, status=status.HTTP_404_NOT_FOUND
+            )
 
         event.is_approved = True
         event.save()
@@ -210,7 +239,9 @@ class RejectEvent(APIView):
         try:
             event = Event.objects.get(id=event_id)
         except Event.DoesNotExist:
-            return Response({"msg": "Event not found"}, status=status.HTTP_404_NOT_FOUND)
+            return Response(
+                {"msg": "Event not found"}, status=status.HTTP_404_NOT_FOUND
+            )
 
         event.is_approved = False
         event.save()
@@ -222,7 +253,9 @@ class BlockEvent(APIView):
         try:
             event = Event.objects.get(id=event_id)
         except Event.DoesNotExist:
-            return Response({"msg": "Event not found"}, status=status.HTTP_404_NOT_FOUND)
+            return Response(
+                {"msg": "Event not found"}, status=status.HTTP_404_NOT_FOUND
+            )
 
         event.is_approved = not event.is_approved
         event.save()
@@ -263,15 +296,20 @@ class GetEventSlotsInHome(APIView):
         serializer = EventSlotSerializer(slot, many=True)
 
         return Response(serializer.data)
+
+
 # LocationListing
 class LocationListView(APIView):
     def get(self, request, format=None):
         try:
-            unique_citys = Event.objects.values_list('city', flat=True).distinct()
-            return Response({'citys': list(unique_citys)}, status=status.HTTP_200_OK)
+            unique_citys = Event.objects.values_list("city", flat=True).distinct()
+            return Response({"citys": list(unique_citys)}, status=status.HTTP_200_OK)
 
         except Exception as e:
-            return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            return Response(
+                {"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+
 
 from rest_framework.permissions import IsAuthenticated
 
@@ -282,6 +320,7 @@ class CategoryView(APIView):
         serializer = EventCategorySerializer(categories, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
+
 class AddCategoryView(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -290,9 +329,13 @@ class AddCategoryView(APIView):
 
         if serializer.is_valid():
             category = serializer.save(is_active=True)
-            return Response({"message": "Category created successfully"}, status=status.HTTP_200_OK)
+            return Response(
+                {"message": "Category created successfully"}, status=status.HTTP_200_OK
+            )
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
 class CategoryListCreateView(APIView):
     def get(self, request):
         categories = EventCategory.objects.all()
@@ -307,6 +350,7 @@ class CategoryListCreateView(APIView):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+
 class CategoryUpdateDeleteView(APIView):
     def get_category(self, category_id):
         try:
@@ -319,7 +363,9 @@ class CategoryUpdateDeleteView(APIView):
         if category:
             serializer = CategorySerializer(category)
             return Response(serializer.data)
-        return Response({"message": "Category not found"}, status=status.HTTP_404_NOT_FOUND)
+        return Response(
+            {"message": "Category not found"}, status=status.HTTP_404_NOT_FOUND
+        )
 
     def put(self, request, category_id):
         category = self.get_category(category_id)
@@ -329,14 +375,20 @@ class CategoryUpdateDeleteView(APIView):
                 serializer.save()
                 return Response(serializer.data)
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        return Response({"message": "Category not found"}, status=status.HTTP_404_NOT_FOUND)
+        return Response(
+            {"message": "Category not found"}, status=status.HTTP_404_NOT_FOUND
+        )
 
     def delete(self, request, category_id):
         category = self.get_category(category_id)
         if category:
             category.delete()
             return Response(status=status.HTTP_204_NO_CONTENT)
-        return Response({"message": "Category not found"}, status=status.HTTP_404_NOT_FOUND)
+        return Response(
+            {"message": "Category not found"}, status=status.HTTP_404_NOT_FOUND
+        )
+
+
 class MenuListCreateView(APIView):
     def get(self, request):
         menu = EventMenu.objects.all()
@@ -382,7 +434,6 @@ class MenuUpdateView(APIView):
             return Response({"msg": "Menu updated successfully"})
         else:
             return Response(serializer.errors)
-
 
 
 class GetEventSlotsInHome(APIView):
@@ -452,6 +503,8 @@ class EventSlotsListView(ListAPIView):
     def get_queryset(self):
         event_id = self.kwargs.get("id")
         return EventSlot.objects.filter(event_id=event_id)
+
+
 class CreateEventMenu(APIView):
     def post(self, request, format=None):
         serializer = EventMenuSerializer(data=request.data)

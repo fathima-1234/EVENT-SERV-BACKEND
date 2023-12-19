@@ -5,4 +5,5 @@ from .models import Servicer
 class ServicerAdmin(admin.ModelAdmin):
     pass
 
-admin.site.register(Servicer,ServicerAdmin)
+
+admin.site.register(Servicer, ServicerAdmin)

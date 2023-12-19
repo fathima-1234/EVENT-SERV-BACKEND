@@ -27,7 +27,9 @@ urlpatterns = [
     path("api/servicerregister/", ServicerRegistration.as_view()),
     path("activate/<uidb64>/<token>", views.activate, name="activate"),
     path(
-        "activateservicer/<uidb64>/<token>", views.activateservicer, name="activateservicer"
+        "activateservicer/<uidb64>/<token>",
+        views.activateservicer,
+        name="activateservicer",
     ),
     path("users/", Listuser.as_view(), name="users"),
     path("blockuser/<int:pk>/", BlockUserView.as_view(), name="block-user"),

@@ -1,16 +1,20 @@
 from rest_framework import serializers
-from events.models import Event, EventCategory, EventSlot, Location,EventMenu
+from events.models import Event, EventCategory, EventSlot, Location, EventMenu
 from servicer.serializers import ServicerSerializer
 from .models import Feedback
+
 
 class EventCategorySerializer(serializers.ModelSerializer):
     class Meta:
         model = EventCategory
         fields = "__all__"
+
+
 class EventMenuSerializer(serializers.ModelSerializer):
     class Meta:
         model = EventMenu
         fields = "__all__"
+
 
 class LocationSerializer(serializers.ModelSerializer):
     class Meta:
@@ -28,7 +32,8 @@ class EventSerializer(serializers.ModelSerializer):
     servicer_name = serializers.SerializerMethodField()
     servicer_id = serializers.SerializerMethodField()
     category = EventCategorySerializer()
-    status = serializers.CharField(source='get_event_status', read_only=True)
+    status = serializers.CharField(source="get_event_status", read_only=True)
+
     class Meta:
         model = Event
         fields = "__all__"
@@ -59,19 +64,18 @@ class PostEventSlotSerializers(serializers.ModelSerializer):
         model = EventSlot
         fields = "__all__"
 
+
 # EventSingleView
 class EventDetailSerializer(serializers.ModelSerializer):
     servicer_name = serializers.SerializerMethodField()
-   
+
     category = EventCategorySerializer()
     # servicer = ServicerSerializer()
-   
 
     class Meta:
         model = Event
         fields = "__all__"
 
-    
     def get_servicer_name(self, event):
         return event.servicer.get_full_name()
 
@@ -79,4 +83,4 @@ class EventDetailSerializer(serializers.ModelSerializer):
 class FeedbackSerializer(serializers.ModelSerializer):
     class Meta:
         model = Feedback
-        fields = '__all__'
+        fields = "__all__"
