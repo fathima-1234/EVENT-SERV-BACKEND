@@ -100,12 +100,12 @@ def activate(request, uidb64, token):
         # else:
         #     return HttpResponse("token expaired")
         return HttpResponseRedirect(
-            "https://event-serv.vercel.app/login?activation=success&message=Account%20activated.%20You%20can%20now%20log%20in"
+            "https://event-serv-frondend.vercel.app/login?activation=success&message=Account%20activated.%20You%20can%20now%20log%20in"
         )
     else:
         # Redirect with error message
         return HttpResponseRedirect(
-            "https://event-serv.vercel.app/login?activation=error&message=Activation%20failed.%20Please%20try%20again"
+            "https://event-serv-frondend.vercel.app/login?activation=error&message=Activation%20failed.%20Please%20try%20again"
         )
 
 
