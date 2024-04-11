@@ -18,6 +18,8 @@ from django.shortcuts import reverse
 from rest_framework import generics
 from django.db.models import Q
 from django.http import HttpResponse
+from rest_framework.permissions import IsAuthenticated, BasePermission
+from rest_framework.permissions import IsAdminUser
 
 
 @api_view(["GET"])
@@ -50,15 +52,32 @@ class AuthView(TokenObtainPairView):
             "name": str(user.first_name + " " + user.last_name),
         }
         return response
+class IsServicerOrAdmin(BasePermission):    
+    """
+    Custom permission to allow access only to servicers or administrators.   
+    """
+
+    def has_permission(self, request, view):
+        return request.user.is_authenticated and (request.user.is_servicer or request.user.is_staff)
 
 
 class UserRegistration(APIView):
+    permission_classes = [IsAdminUser]
+
     def post(self, request, format=None):
         serializer = UserSerializer(data=request.data)
         if serializer.is_valid():
+            is_superadmin = serializer.validated_data.get('is_superadmin', False)
+
+            # Check if the request is attempting to create a superadmin
+            if is_superadmin and not request.user.is_superuser:
+                return Response({"msg": "You are not authorized to create a superadmin account."}, 
+                                status=status.HTTP_403_FORBIDDEN)
+
+            # Save the user but do not activate it immediately
             user = serializer.save()
 
-            # Generate the activation URL
+            # Generate activation token and URL
             uid = urlsafe_base64_encode(force_bytes(user.pk))
             token = default_token_generator.make_token(user)
             activation_url = reverse("activate", kwargs={"uidb64": uid, "token": token})
@@ -79,9 +98,9 @@ class UserRegistration(APIView):
             send_email = EmailMessage(mail_subject, message, to=[to_email])
             send_email.send()
 
-            return Response({"msg": "Registration Success"})
+            return Response({"msg": "Registration Success. Activation email sent to your registered email."})
 
-        return Response({"msg": "Registration Failed"})
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 @api_view(["GET"])
@@ -169,7 +188,7 @@ class Listuser(generics.ListCreateAPIView):
     queryset = User.objects.filter(Q(is_admin=False) & Q(is_staff=False))
 
     serializer_class = UserSerializer
-
+    permission_classes = [IsServicerOrAdmin]
 
 class Listservicer(generics.ListCreateAPIView):
     queryset = User.objects.filter(Q(is_admin=False) & Q(is_staff=True))
@@ -177,6 +196,7 @@ class Listservicer(generics.ListCreateAPIView):
 
 
 class BlockUserView(APIView):
+    permission_classes = [IsServicerOrAdmin]
     def get(self, request, pk):
         user = User.objects.get(id=pk)
         print(user.is_active)

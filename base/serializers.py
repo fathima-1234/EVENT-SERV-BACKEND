@@ -15,13 +15,18 @@ class UserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = "__all__"
+        fields = ['id', 'email', 'password', 'first_name', 'last_name', 'phone_number', 'is_active', 'is_staff', 'is_admin', 'is_superadmin', 'is_servicer', 'is_profile']
+        read_only_fields = ['is_active', 'is_staff', 'is_admin', 'is_superadmin', 'is_servicer', 'is_profile']
 
     def create(self, validated_data):
-        return User.objects.create_user(**validated_data)
-
+        password = validated_data.pop('password', None)
+        user = User.objects.create(**validated_data)
+        if password:
+            user.set_password(password)
+            user.save()
+        return user
 
 class ServicerSerializer(serializers.ModelSerializer):
     class Meta:
         model = Servicer
-        fields = "__all__"
+        fields = ['user']
